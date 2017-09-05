@@ -1,0 +1,6 @@
+brownianQuasi1d*
+*.dat
+*.o
+*.swp
+*.out
+*.log
