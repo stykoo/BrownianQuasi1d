@@ -6,19 +6,23 @@
 #include <random>
 #include "parameters.h"
 
-struct State {
-	// Positions of the particles
-	std::vector< std::array<double, DIM> > positions;
-	// Old positions in Y/Z
-	std::vector< std::array<double, DIM-1> > oldPosYZ;
-	// Forces between the particles
-	std::vector< std::array<double, DIM> > forces;
-	// Positions of the tracers after thermalization
-	std::vector<double> initXTracers;
-};
-
 struct Observables {
 	std::vector< std::vector<double> > moments;  // All the moments
+};
+
+class Simulation {
+	public:
+		Simulation(const Parameters &p);
+		void run(std::vector<Observables> &obs, std::mt19937 &rndGen);
+	
+	protected:
+		const Parameters p;
+
+		virtual void init(std::mt19937 &rndGen) = 0;
+		virtual void setInitXTracers() = 0;
+		virtual void update(std::mt19937 &rndGen,
+				            const bool thermalization = false) = 0;
+		virtual void computeObservables(Observables &o) = 0;
 };
 
 int runSimulations(const Parameters &p);
@@ -27,15 +31,7 @@ void runMultipleSimulations(const Parameters &p, const long nbSimuls,
 						   const unsigned int seed);
 void runOneSimulation(const Parameters &p, std::vector<Observables> &obs,
    					  std::mt19937 &rndGen);
-void initState(State &state, const Parameters &p, std::mt19937 &rndGen);
-void setInitXTracers(State &state, const Parameters &p);
-void updateState(State &state, const Parameters &p, std::mt19937 &rndGen,
-		         const bool thermalization=false);
-void calcForcesBetweenParticles(State &state, const Parameters &p);
-void keepInChannel(State &state, const Parameters &p);
 void initObservables(std::vector<Observables> &obs, const Parameters &p);
-void computeObservables(const State &state, const Parameters &p,
-		                Observables &o);
 void addObservables(std::vector<Observables> &obs1,
 		            const std::vector<Observables> &obs2, const Parameters &p);
 int exportObservables(const std::vector<Observables> &sumObs,
@@ -59,19 +55,9 @@ T mypow(const T a, const U b) {
 	}
 }
 
-void reflexionInCircle(const double xIn, const double yIn,
-		               const double xOut, const double yOut,
-					   const double R,
-					   double &xFin, double &yFin);
-void findIntersection(const double xIn, const double yIn,
-		              const double xOut, const double yOut,
-					  const double R,
-					  double &xCross, double &yCross);
-void basicReflexion(const double ux, const double uy,
-		            double normalX, double normalY,
-					double &xRefl, double &yRefl);
-void solveSecondOrderEq(const double a, const double b, const double c,
-                        double &sol1, double &sol2);
-int sign(const double x);
+// Return the sign of a number (+1 if positive or null, -1 if negative)
+inline int sign(const double x) {
+    return (0. <= x) - (x < 0.);
+}
 
 #endif
