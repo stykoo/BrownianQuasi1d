@@ -1,6 +1,4 @@
 #include <algorithm>
-#include <chrono>
-#include <thread>
 #include "simul.h"
 #include "SimulPipe.h"
 
@@ -30,7 +28,7 @@ void SimulPipe::init(std::mt19937 &rndGen) {
 			  });
 
 	for (long i=0 ; i<p.nbParticles ; ++i) {
-		for (int a=0 ; a<DIM ; ++a) {
+		for (int a=0 ; a<SIMUL_PIPE_DIM ; ++a) {
 			forces[i][a] = 0;
 		}
 	}
@@ -52,7 +50,7 @@ void SimulPipe::update(std::mt19937 &rndGen, const bool thermalization) {
 	
 	// Old position
 	for (long i=0 ; i<p.nbParticles ; ++i) {
-		for (int a=0 ; a<DIM-1 ; ++a) {
+		for (int a=0 ; a<SIMUL_PIPE_DIM-1 ; ++a) {
 			oldPosYZ[i][a] = positions[i][a+1];
 		}
 	}
@@ -60,7 +58,7 @@ void SimulPipe::update(std::mt19937 &rndGen, const bool thermalization) {
 	calcForcesBetweenParticles();
 	
 	for (long i=0 ; i<p.nbParticles ; ++i) {
-		for (int a=0 ; a<DIM ; ++a) {
+		for (int a=0 ; a<SIMUL_PIPE_DIM ; ++a) {
 			// Noise
 			positions[i][a] += rndForNoise(rndGen);
 
@@ -86,15 +84,15 @@ void SimulPipe::calcForcesBetweenParticles() {
 	for (long i=0 ; i<p.nbParticles ; ++i) {
 		long iPrev = (i + p.nbParticles - 1) % p.nbParticles;
 
-		double dr[DIM];
+		double dr[SIMUL_PIPE_DIM];
 		double distsq = 0.;
-		for (int a=0 ; a<DIM ; ++a) {
+		for (int a=0 ; a<SIMUL_PIPE_DIM ; ++a) {
 			dr[a] = positions[i][a] - positions[iPrev][a];
 			distsq += dr[a] * dr[a];
 			forces[i][a] = 0;
 		}
 		if (distsq < 1. && distsq > 0.) {
-			for (int a=0 ; a<DIM ; ++a) {
+			for (int a=0 ; a<SIMUL_PIPE_DIM ; ++a) {
 				double f = p.eps * (1. / sqrt(distsq) - 1.) * dr[a];
 			forces[i][a] += f;
 			forces[iPrev][a] -= f;

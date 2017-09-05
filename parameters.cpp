@@ -2,6 +2,11 @@
 
 // Check if the parameters are valid. Return 0 if they are, 1 otherwise.
 int checkParameters(const Parameters &p) {
+	if (p.simulName != "pipe" && p.simulName != "tonks") {
+		std::cerr << "Wrong simulation name (" << p.simulName << "). "
+			<< "Only 'pipe' and 'tonks' are allowed." << std::endl;
+	}
+
     if (checkPositive(p.nbParticles, "nbParticles") ||
         checkPositive(p.density, "density") ||
         checkPositive(p.radExtra, "radExtra") ||
@@ -56,7 +61,8 @@ int checkParameters(const Parameters &p) {
 
 // Print the parameters to stream.
 void printParameters(const Parameters &p, std::ostream &stream) {
-	stream << "particles=" << p.nbParticles << ", density=" << p.density
+	stream << "_" << p.simulName << "_"
+		<< ", particles=" << p.nbParticles << ", density=" << p.density
 		<< ", radExtra=" << p.radExtra << ", length=" << p.length
 		<< ", temperature=" << p.temperature << ", eps=" << p.eps
 	   	<< ", timestep=" << p.timestep

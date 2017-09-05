@@ -5,7 +5,7 @@ EXEC=brownianQuasi1d
 
 all: $(EXEC)
 
-$(EXEC): main.o SimulPipe.o simul.o parseArguments.o parameters.o
+$(EXEC): main.o SimulPipe.o SimulTonks.o simul.o parseArguments.o parameters.o
 		$(CC) -o $@ $^ $(LDFLAGS)
 
 simul_test: simul_test.cpp simul.o parameters.o
@@ -18,6 +18,9 @@ simul.o: simul.cpp simul.h parameters.h
 		$(CC) -o $@ -c $< $(CFLAGS)
 
 SimulPipe.o: SimulPipe.cpp SimulPipe.h simul.h parameters.h
+		$(CC) -o $@ -c $< $(CFLAGS)
+
+SimulTonks.o: SimulTonks.cpp SimulTonks.h simul.h parameters.h
 		$(CC) -o $@ -c $< $(CFLAGS)
 
 parseArguments.o: parseArguments.cpp parseArguments.h parameters.h

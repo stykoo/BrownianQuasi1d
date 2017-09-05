@@ -9,6 +9,7 @@
 #include <iomanip>
 #include "simul.h"
 #include "SimulPipe.h"
+#include "SimulTonks.h"
 
 // Simply load the parameters
 Simulation::Simulation(const Parameters &params) : p(params) {
@@ -93,11 +94,18 @@ void runMultipleSimulations(const Parameters &p, const long nbSimuls,
 				<< " on thread " << std::this_thread::get_id() << std::endl;
 		}
 
-		// Run a single simulation
-		SimulPipe simul(p);
-		// simul = new SimulPipe(p);
+		// Run a single simulation (of the right type!)
+		Simulation *simul;
+		if (p.simulName == "pipe") {
+			simul = new SimulPipe(p);
+		} else if (p.simulName == "tonks") {
+			simul = new SimulTonks(p);
+		} else {
+			return;
+		}
 		std::vector<Observables> obs;
-		simul.run(obs, rndGen);
+		simul->run(obs, rndGen);
+		delete simul;
 
 		// Add the observables to the sum
 		addObservables(sumObs, obs, p);

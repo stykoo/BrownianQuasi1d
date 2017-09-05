@@ -1,7 +1,6 @@
 #ifndef PARAMETERS_H
 #define PARAMETERS_H
 
-#define DIM 3
 #define DEFAULT_NB_MOMENTS 2
 #define DEFAULT_OUTPUT_PRECISION 15
 #define DEFAULT_THREADS 1
@@ -12,6 +11,8 @@
 #include <vector>
 
 struct Parameters {
+	std::string simulName;  // Type of simulation ('pipe', 'tonks')
+
 	long nbParticles;  // Number of particles
 	double density;  // Linear density
 	double radExtra;  // Radius of the channel minus radius of particles (1.0)

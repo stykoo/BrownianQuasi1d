@@ -9,6 +9,7 @@
 class SimulPipe : public Simulation {
 	public:
 		SimulPipe(const Parameters &p);
+		~SimulPipe(){}
 
 	protected:
 		// Positions of the particles

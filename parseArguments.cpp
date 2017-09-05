@@ -10,21 +10,23 @@ namespace po = boost::program_options;
 int parseArguments(int argc, char **argv, Parameters &p) {
 	po::options_description opts("Options");
 	opts.add_options()
+		("name", po::value<std::string>(&p.simulName)->required(),
+		 "Should be 'pipe' or 'tonks'")
 		("particles,n", po::value<long>(&p.nbParticles)->required(),
 		 "Number of particles")
 		("density,r", po::value<double>(&p.density)->required(),
 		 "Linear density")
-		("radExtra,R", po::value<double>(&p.radExtra)->required(),
+		("radExtra,R", po::value<double>(&p.radExtra)->default_value(0.1),
 		 "Diameter of the channel")
 
-		("temperature,T", po::value<double>(&p.temperature)->required(),
+		("temperature,T", po::value<double>(&p.temperature)->default_value(1.),
 		 "Temperature")
 		("eps,e", po::value<double>(&p.eps)->required(),
 		 "Strength of the inter-particle potential")
 		("timestep,t", po::value<double>(&p.timestep)->required(), "Timestep")
 		("nbIters,I", po::value<long>(&p.nbIters)->required(),
 		 "Number of iterations")
-		("nbItersTh,J", po::value<long>(&p.nbItersTh)->required(),
+		("nbItersTh,J", po::value<long>(&p.nbItersTh)->default_value(0),
 		 "Number of iterations of thermalization")
 
 		("ids,i",
@@ -35,7 +37,7 @@ int parseArguments(int argc, char **argv, Parameters &p) {
 		 po::value< std::vector<double> >(&p.forces)->multitoken()->required(),
 		 "Forces on the tracers.")
 
-		("simuls,s", po::value<long>(&p.nbSimuls)->required(),
+		("simuls,s", po::value<long>(&p.nbSimuls)->default_value(1),
 		 "Number of repetitions of the simulation")
 		("moments,M", po::value<int>(&p.nbMoments)->default_value(
 			DEFAULT_NB_MOMENTS), "Number of moments to compute")

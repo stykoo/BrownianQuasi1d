@@ -13,6 +13,7 @@ struct Observables {
 class Simulation {
 	public:
 		Simulation(const Parameters &p);
+		virtual ~Simulation() {}
 		void run(std::vector<Observables> &obs, std::mt19937 &rndGen);
 	
 	protected:
