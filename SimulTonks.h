@@ -7,7 +7,7 @@
 class SimulTonks : public Simulation {
 	public:
 		SimulTonks(const Parameters &p);
-		~SimulTonks(){}
+		~SimulTonks();
 
 	protected:
 		// Positions of the particles
@@ -16,6 +16,7 @@ class SimulTonks : public Simulation {
 		std::vector<double> forces;
 		// Positions of the tracers after thermalization
 		std::vector<double> initXTracers;
+
 
 		// Methods to implement from Simulation
 		void init(std::mt19937 &rndGen) override;

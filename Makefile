@@ -2,31 +2,22 @@ CC=g++
 CFLAGS=-W -Wall -ansi -pedantic -std=c++14 -O3
 LDFLAGS=-lboost_program_options -lpthread
 EXEC=brownianQuasi1d
+SRC=$(wildcard *.cpp)
+OBJ=$(SRC:.cpp=.o)
 
 all: $(EXEC)
 
-$(EXEC): main.o SimulPipe.o SimulTonks.o simul.o parseArguments.o parameters.o
+$(EXEC): $(OBJ)
 		$(CC) -o $@ $^ $(LDFLAGS)
 
-simul_test: simul_test.cpp simul.o parameters.o
-		$(CC) -o $@ $^ $(LDFLAGS)
+main.o: main.cpp
+	$(CC) -o $@ -c $< $(CFLAGS)
 
-main.o: main.cpp parseArguments.h parameters.h
-		$(CC) -o $@ -c $< $(CFLAGS)
+SimulPipe.o: simul.h
 
-simul.o: simul.cpp simul.h parameters.h
-		$(CC) -o $@ -c $< $(CFLAGS)
+SimulTonks.o: simul.h
 
-SimulPipe.o: SimulPipe.cpp SimulPipe.h simul.h parameters.h
-		$(CC) -o $@ -c $< $(CFLAGS)
-
-SimulTonks.o: SimulTonks.cpp SimulTonks.h simul.h parameters.h
-		$(CC) -o $@ -c $< $(CFLAGS)
-
-parseArguments.o: parseArguments.cpp parseArguments.h parameters.h
-		$(CC) -o $@ -c $< $(CFLAGS)
-
-parameters.o: parameters.cpp parameters.h
+%.o: %.cpp %.h parameters.h
 		$(CC) -o $@ -c $< $(CFLAGS)
 
 .PHONY: clean mrproper

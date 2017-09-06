@@ -18,6 +18,9 @@ class Simulation {
 	
 	protected:
 		const Parameters p;
+		const double noise;
+		std::uniform_real_distribution<double> distribUnif;
+		std::normal_distribution<double> distribNormal;
 
 		virtual void init(std::mt19937 &rndGen) = 0;
 		virtual void setInitXTracers() = 0;

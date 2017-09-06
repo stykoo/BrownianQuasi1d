@@ -5,25 +5,22 @@
 SimulTonks::SimulTonks(const Parameters &p) : Simulation(p) {
 }
 
+SimulTonks::~SimulTonks() {
+}
+
 // Generate an initial state.
 void SimulTonks::init(std::mt19937 &rndGen) {
 	positions.resize(p.nbParticles);
 	forces.resize(p.nbParticles);
 	initXTracers.resize(p.nbTracers);
 
-	std::uniform_real_distribution<double> distrib(0., 1.);
-
 	for (long i=0 ; i<p.nbParticles ; ++i) {
-		positions[i] = p.length * (distrib(rndGen) - 0.5);
+		positions[i] = p.length * (distribUnif(rndGen) - 0.5);
 		forces[i] = 0;  // Arbitrary
 	}
 
 	// Sort by x value
 	std::sort(positions.begin(), positions.end());
-	for (long i=0 ; i<p.nbParticles ; ++i) {
-		std::cout << positions[i] << " ";
-	}
-	std::cout << std::endl;
 
 	setInitXTracers();
 }
@@ -37,14 +34,11 @@ void SimulTonks::setInitXTracers() {
 
 // Implement one step of the time evolution of the system.
 void SimulTonks::update(std::mt19937 &rndGen, const bool thermalization) {
-	std::normal_distribution<double> rndForNoise(0., sqrt(2. * p.temperature
-														  * p.timestep));
-	
 	calcForcesBetweenParticles();
 	
 	for (long i=0 ; i<p.nbParticles ; ++i) {
 		// Noise
-		positions[i] += rndForNoise(rndGen);
+		positions[i] += noise * distribNormal(rndGen);
 
 		// Forces between particles
 		positions[i] += p.timestep * forces[i];
@@ -58,9 +52,7 @@ void SimulTonks::update(std::mt19937 &rndGen, const bool thermalization) {
 	}
 	for (long i=0 ; i<p.nbParticles ; ++i) {
 		positions[i] = periodicBC(positions[i], p.length);
-		std::cout << positions[i] << " "; // TODO
 	}
-	std::cout << std::endl;
 }
 
 // Compute the forces between the particles.
@@ -86,9 +78,9 @@ void SimulTonks::calcForcesBetweenParticles() {
 void SimulTonks::computeObservables(Observables &o) {
 	std::vector<double> xsPer(p.nbTracers);
 	for (long i = 0 ; i < p.nbTracers ; ++i) {
-		// TODO
-		// xsPer[i] = periodicBC(positions[i] - initXTracers[i], p.length);
-		xsPer[i] = periodicBC(positions[i], p.length);
+		xsPer[i] = periodicBC(positions[p.idTracers[i]], p.length);
+		// xsPer[i] = periodicBC(positions[p.idTracers[i]] - initXTracers[i],
+		//                       p.length);
 	}
 	for (long i = 0 ; i < p.nbTracers ; ++i) {
 		for (long j = 0 ; j < p.nbTracers - i ; ++j) {

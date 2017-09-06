@@ -11,8 +11,10 @@
 #include "SimulPipe.h"
 #include "SimulTonks.h"
 
-// Simply load the parameters
-Simulation::Simulation(const Parameters &params) : p(params) {
+// Load the parameters and initialize the distributions
+Simulation::Simulation(const Parameters &params) : p(params),
+	noise(std::sqrt(2. * p.temperature * p.timestep)),
+	distribUnif(0., 1.), distribNormal(0., 1.) {
 }
 
 // Run the simulation
