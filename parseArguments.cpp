@@ -12,47 +12,50 @@ int parseArguments(int argc, char **argv, Parameters &p) {
 	opts.add_options()
 		("name", po::value<std::string>(&p.simulName)->required(),
 		 "Should be 'pipe' or 'tonks'")
-		("particles,n", po::value<long>(&p.nbParticles)->required(),
+		("particles", po::value<long>(&p.nbParticles)->required(),
 		 "Number of particles")
-		("density,r", po::value<double>(&p.density)->required(),
+		("density", po::value<double>(&p.density)->required(),
 		 "Linear density")
-		("radExtra,R", po::value<double>(&p.radExtra)->default_value(0.1),
+		("radExtra", po::value<double>(&p.radExtra)->default_value(0.1),
 		 "Diameter of the channel")
 
-		("temperature,T", po::value<double>(&p.temperature)->default_value(1.),
+		("temperature", po::value<double>(&p.temperature)->default_value(1.),
 		 "Temperature")
-		("eps,e", po::value<double>(&p.eps)->required(),
+		("eps", po::value<double>(&p.eps)->required(),
 		 "Strength of the inter-particle potential")
-		("timestep,t", po::value<double>(&p.timestep)->required(), "Timestep")
-		("nbIters,I", po::value<long>(&p.nbIters)->required(),
+		("timestep", po::value<double>(&p.timestep)->required(), "Timestep")
+		("nbIters", po::value<long>(&p.nbIters)->required(),
 		 "Number of iterations")
-		("nbItersTh,J", po::value<long>(&p.nbItersTh)->default_value(0),
+		("nbItersTh", po::value<long>(&p.nbItersTh)->default_value(0),
 		 "Number of iterations of thermalization")
 
-		("ids,i",
+		("ids",
 		 po::value< std::vector<long> >(&p.idTracers)->multitoken()
 		                                              ->required(),
 		 "Initial relative positions of the tracers")
-		("forces,f",
+		("forces",
 		 po::value< std::vector<double> >(&p.forces)->multitoken()->required(),
 		 "Forces on the tracers.")
 
-		("simuls,s", po::value<long>(&p.nbSimuls)->default_value(1),
+		("simuls", po::value<long>(&p.nbSimuls)->default_value(1),
 		 "Number of repetitions of the simulation")
-		("moments,M", po::value<int>(&p.nbMoments)->default_value(
+		("moments", po::value<int>(&p.nbMoments)->default_value(
 			DEFAULT_NB_MOMENTS), "Number of moments to compute")
-		("threads,c", po::value<int>(&p.nbThreads)->default_value(
+		("threads", po::value<int>(&p.nbThreads)->default_value(
 			DEFAULT_THREADS), "Number of threads")
-		("output,o", po::value<std::string>(&p.output)->default_value(
+		("output", po::value<std::string>(&p.output)->default_value(
 			DEFAULT_OUTPUT_FILE), "Output file")
 
-        ("verbose,v", po::bool_switch(&p.verbose), "Verbose mode")
-        ("help,h", "Print help message and exit")
+        ("verbose", po::bool_switch(&p.verbose), "Verbose mode")
+        ("help", "Print help message and exit")
 		;
 
 	try {
 		po::variables_map vars;
-		po::store(po::parse_command_line(argc, argv, opts), vars);
+		po::store(po::parse_command_line(argc, argv, opts,
+					                     po::command_line_style::unix_style ^
+										 po::command_line_style::allow_short),
+				  vars);
 
         // Display help and exit
         if (vars.count("help")) {
