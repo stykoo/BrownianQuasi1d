@@ -91,3 +91,23 @@ void SimulTonks::computeObservables(Observables &o) {
 		}
 	}
 }
+
+bool SimulTonks::isOrdered() {
+	long c = 0;
+	for (long i = 0 ; i < p.nbParticles-1 ; ++i) {
+		if (positions[i] > positions[i+1]) {
+			++c;
+		}
+	}
+	if (positions[p.nbParticles-1] > positions[0]) {
+		++c;
+	}
+	/* if (c >= 2) {
+		std::cout << c << std::endl;
+		for (long i=0 ; i<p.nbParticles ; ++i) {
+			std::cout << positions[i] << " ";
+		}
+		std::cout << std::endl;
+	} */
+	return (c < 2);
+}

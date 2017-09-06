@@ -17,14 +17,17 @@ Simulation::Simulation(const Parameters &params) : p(params),
 	distribUnif(0., 1.), distribNormal(0., 1.) {
 }
 
-// Run the simulation
-void Simulation::run(std::vector<Observables> &obs, std::mt19937 &rndGen) {
+// Run the simulation. Return 1 if an incident happened.
+int Simulation::run(std::vector<Observables> &obs, std::mt19937 &rndGen) {
 	// Initialization of the positions
 	init(rndGen);
 
 	// Thermalization
 	for (long j=0 ; j<p.nbItersTh ; ++j) {
 		update(rndGen, true);
+		if (p.checkOrder && !isOrdered()) {
+			return 1;
+		}
 	}
 
 	// Initial observables
@@ -36,7 +39,11 @@ void Simulation::run(std::vector<Observables> &obs, std::mt19937 &rndGen) {
 	for (long j=0 ; j<p.nbIters-1 ; ++j) {
 		update(rndGen, false);
 		computeObservables(obs[j+1]);
+		if (p.checkOrder && !isOrdered()) {
+			return 1;
+		}
 	}
+	return 0;
 }
 
 
@@ -106,8 +113,12 @@ void runMultipleSimulations(const Parameters &p, const long nbSimuls,
 			return;
 		}
 		std::vector<Observables> obs;
-		simul->run(obs, rndGen);
+		int status = simul->run(obs, rndGen);
 		delete simul;
+
+		if (status != 0) {
+			std::cerr << "Warning: Wrong order of the particles" << std::endl;
+		}
 
 		// Add the observables to the sum
 		addObservables(sumObs, obs, p);

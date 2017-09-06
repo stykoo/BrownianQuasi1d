@@ -14,7 +14,7 @@ class Simulation {
 	public:
 		Simulation(const Parameters &p);
 		virtual ~Simulation() {}
-		void run(std::vector<Observables> &obs, std::mt19937 &rndGen);
+		int run(std::vector<Observables> &obs, std::mt19937 &rndGen);
 	
 	protected:
 		const Parameters p;
@@ -27,6 +27,7 @@ class Simulation {
 		virtual void update(std::mt19937 &rndGen,
 				            const bool thermalization = false) = 0;
 		virtual void computeObservables(Observables &o) = 0;
+		virtual bool isOrdered() = 0;
 };
 
 int runSimulations(const Parameters &p);

@@ -46,6 +46,8 @@ int parseArguments(int argc, char **argv, Parameters &p) {
 		("output", po::value<std::string>(&p.output)->default_value(
 			DEFAULT_OUTPUT_FILE), "Output file")
 
+        ("checkOrder", po::bool_switch(&p.checkOrder),
+		 "Check the order of the particles at each iteration")
         ("verbose", po::bool_switch(&p.verbose), "Verbose mode")
         ("help", "Print help message and exit")
 		;

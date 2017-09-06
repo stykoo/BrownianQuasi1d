@@ -140,6 +140,18 @@ void SimulPipe::computeObservables(Observables &o) {
 	}
 }
 
+bool SimulPipe::isOrdered() {
+	long c = 0;
+	for (long i = 0 ; i < p.nbParticles-1 ; ++i) {
+		if (positions[i][0] > positions[i+1][0]) {
+			++c;
+		}
+	}
+	if (positions[p.nbParticles-1][0] > positions[0][0]) {
+		++c;
+	}
+	return (c < 2);
+}
 
 // A ray going from (xIn, yIn) to (xOut, yOut) is reflected inside
 // a circle of center the origin and of radius R.

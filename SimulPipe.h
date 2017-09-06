@@ -26,6 +26,7 @@ class SimulPipe : public Simulation {
 		void setInitXTracers() override;
 		void update(std::mt19937 &rndGen, const bool thermalization) override;
 		void computeObservables(Observables &o) override;
+		bool isOrdered() override;
 
 		// New methods
 		void calcForcesBetweenParticles();

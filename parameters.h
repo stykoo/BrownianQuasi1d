@@ -33,6 +33,7 @@ struct Parameters {
 	int nbThreads;  // Number of threads
 	std::string output;  // Name of the output file
 
+	bool checkOrder;  // Check the order of the particles at each iteration
 	bool verbose;  // Verbose mode
 };
 
