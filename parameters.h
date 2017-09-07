@@ -11,7 +11,7 @@
 #include <vector>
 
 struct Parameters {
-	// Type of simulation ('pipe', 'tonks', 'canal', 'dipole')
+	// Type of simulation ('pipe', 'tonks', 'canal', 'coulomb', 'dipole')
 	std::string simulName;
 
 	long nbParticles;  // Number of particles

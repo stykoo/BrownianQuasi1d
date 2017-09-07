@@ -3,10 +3,11 @@
 // Check if the parameters are valid. Return 0 if they are, 1 otherwise.
 int checkParameters(const Parameters &p) {
 	if (p.simulName != "pipe" && p.simulName != "tonks"
-			&& p.simulName != "canal" && p.simulName != "dipole") {
+			&& p.simulName != "canal" && p.simulName != "coulomb"
+			&& p.simulName != "dipole") {
 		std::cerr << "Wrong simulation name (" << p.simulName << "). "
-			<< "Only 'tonks', 'canal', 'pipe' and 'dipole' are allowed."
-			<< std::endl;
+			<< "Only 'tonks', 'canal', 'pipe', 'coulomb' and 'dipole' "
+			<< "are allowed." << std::endl;
 		return 1;
 	}
 
