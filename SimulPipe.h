@@ -1,7 +1,7 @@
 #ifndef SIMUL_PIPE_H
 #define SIMUL_PIPE_H
 
-#define SIMUL_PIPE_DIM 3
+#define DIM_PIPE 3
 
 #include "parameters.h"
 #include "simul.h"
@@ -13,11 +13,11 @@ class SimulPipe : public Simulation {
 
 	protected:
 		// Positions of the particles
-		std::vector< std::array<double, SIMUL_PIPE_DIM> > positions;
+		std::vector< std::array<double, DIM_PIPE> > positions;
 		// Old positions in Y/Z
-		std::vector< std::array<double, SIMUL_PIPE_DIM-1> > oldPosYZ;
+		std::vector< std::array<double, DIM_PIPE-1> > oldPosYZ;
 		// Forces between the particles
-		std::vector< std::array<double, SIMUL_PIPE_DIM> > forces;
+		std::vector< std::array<double, DIM_PIPE> > forces;
 		// Positions of the tracers after thermalization
 		std::vector<double> initXTracers;
 

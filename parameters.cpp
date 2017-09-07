@@ -2,9 +2,10 @@
 
 // Check if the parameters are valid. Return 0 if they are, 1 otherwise.
 int checkParameters(const Parameters &p) {
-	if (p.simulName != "pipe" && p.simulName != "tonks") {
+	if (p.simulName != "pipe" && p.simulName != "tonks"
+			&& p.simulName != "canal") {
 		std::cerr << "Wrong simulation name (" << p.simulName << "). "
-			<< "Only 'pipe' and 'tonks' are allowed." << std::endl;
+			<< "Only 'pipe', 'tonks' and 'canal' are allowed." << std::endl;
 	}
 
     if (checkPositive(p.nbParticles, "nbParticles") ||

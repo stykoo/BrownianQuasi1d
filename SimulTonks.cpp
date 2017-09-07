@@ -22,6 +22,14 @@ void SimulTonks::init(std::mt19937 &rndGen) {
 	// Sort by x value
 	std::sort(positions.begin(), positions.end());
 
+	// If the potential is strong, the order of the particles may not be
+	// conserved in the first iterations: we do some thermalization.
+	update(rndGen, true);
+	while (!isOrdered()) {
+		std::sort(positions.begin(), positions.end());
+		update(rndGen, true);
+	}
+
 	setInitXTracers();
 }
 
