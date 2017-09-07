@@ -44,6 +44,13 @@ knowledge of the CeCILL license and that you accept its terms.
  * Implementation of the simulation in a canal (2d confined system).
  */
 
+#include <algorithm>
+#include "simul.h"
+#include "SimulCanal.h"
+
+SimulCanal::SimulCanal(const Parameters &p) : Simulation(p) {
+}
+
 SimulCanal::~SimulCanal() {
 }
 
