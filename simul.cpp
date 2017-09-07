@@ -11,6 +11,7 @@
 #include "SimulPipe.h"
 #include "SimulTonks.h"
 #include "SimulCanal.h"
+#include "SimulDipole.h"
 
 // Load the parameters and initialize the distributions
 Simulation::Simulation(const Parameters &params) : p(params),
@@ -112,6 +113,8 @@ void runMultipleSimulations(const Parameters &p, const long nbSimuls,
 			simul = new SimulTonks(p);
 		} else if (p.simulName == "canal") {
 			simul = new SimulCanal(p);
+		} else if (p.simulName == "dipole") {
+			simul = new SimulDipole(p);
 		} else {
 			return;
 		}

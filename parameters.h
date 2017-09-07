@@ -11,7 +11,8 @@
 #include <vector>
 
 struct Parameters {
-	std::string simulName;  // Type of simulation ('pipe', 'tonks')
+	// Type of simulation ('pipe', 'tonks', 'canal', 'dipole')
+	std::string simulName;
 
 	long nbParticles;  // Number of particles
 	double density;  // Linear density
