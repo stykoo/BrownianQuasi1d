@@ -33,13 +33,6 @@ void SimulDipole::init(std::mt19937 &rndGen) {
 	setInitXTracers();
 }
 
-// Set initial x-position of the tracers.
-void SimulDipole::setInitXTracers() {
-	for (long i = 0 ; i < p.nbTracers ; ++i) {
-		initXTracers[i] = positions[p.idTracers[i]];
-	}
-}
-
 // Implement one step of the time evolution of the system.
 void SimulDipole::update(std::mt19937 &rndGen, const bool thermalization) {
 	calcForcesBetweenParticles();
@@ -63,6 +56,11 @@ void SimulDipole::update(std::mt19937 &rndGen, const bool thermalization) {
 	}
 }
 
+// Get position in X of particle i
+double SimulDipole::getPosX(const long i) {
+	return positions[i];
+}
+
 // Compute the forces between the particles.
 void SimulDipole::calcForcesBetweenParticles() {
 	for (long i=0 ; i<p.nbParticles ; ++i) {
@@ -79,42 +77,4 @@ void SimulDipole::calcForcesBetweenParticles() {
 			}
 		}
 	}
-}
-
-// Compute the observables.
-void SimulDipole::computeObservables(Observables &o) {
-	std::vector<double> xsPer(p.nbTracers);
-	for (long i = 0 ; i < p.nbTracers ; ++i) {
-		xsPer[i] = periodicBC(positions[p.idTracers[i]], p.length);
-		// xsPer[i] = periodicBC(positions[p.idTracers[i]] - initXTracers[i],
-		//                       p.length);
-	}
-	for (long i = 0 ; i < p.nbTracers ; ++i) {
-		for (long j = 0 ; j < p.nbTracers - i ; ++j) {
-			o.moments[i][j] = 1;
-			for (long k = j ; k < j + i + 1 ; ++k) {
-				o.moments[i][j] *= xsPer[k];
-			}
-		}
-	}
-}
-
-bool SimulDipole::isOrdered() {
-	long c = 0;
-	for (long i = 0 ; i < p.nbParticles-1 ; ++i) {
-		if (positions[i] > positions[i+1]) {
-			++c;
-		}
-	}
-	if (positions[p.nbParticles-1] > positions[0]) {
-		++c;
-	}
-	/* if (c >= 2) {
-		std::cout << c << std::endl;
-		for (long i=0 ; i<p.nbParticles ; ++i) {
-			std::cout << positions[i] << " ";
-		}
-		std::cout << std::endl;
-	} */
-	return (c < 2);
 }

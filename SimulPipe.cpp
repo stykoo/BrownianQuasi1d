@@ -47,13 +47,6 @@ void SimulPipe::init(std::mt19937 &rndGen) {
 	setInitXTracers();
 }
 
-// Set initial x-position of the tracers.
-void SimulPipe::setInitXTracers() {
-	for (long i = 0 ; i < p.nbTracers ; ++i) {
-		initXTracers[i] = positions[p.idTracers[i]][0];
-	}
-}
-
 // Implement one step of the time evolution of the system.
 void SimulPipe::update(std::mt19937 &rndGen, const bool thermalization) {
 	std::normal_distribution<double> rndForNoise(0., sqrt(2. * p.temperature
@@ -87,6 +80,11 @@ void SimulPipe::update(std::mt19937 &rndGen, const bool thermalization) {
 
 	// Keep all the particles in the channel
 	keepInChannel();
+}
+
+// Get position in X of particle i
+double SimulPipe::getPosX(const long i) {
+	return positions[i][0];
 }
 
 // Compute the forces between the particles.
@@ -132,36 +130,6 @@ void SimulPipe::keepInChannel() {
 			positions[i][2] = zNew;
 		}
 	}
-}
-
-// Compute the observables.
-void SimulPipe::computeObservables(Observables &o) {
-	std::vector<double> xsPer(p.nbTracers);
-	for (long i = 0 ; i < p.nbTracers ; ++i) {
-		xsPer[i] = periodicBC(positions[i][0] - initXTracers[i],
-							  p.length);
-	}
-	for (long i = 0 ; i < p.nbTracers ; ++i) {
-		for (long j = 0 ; j < p.nbTracers - i ; ++j) {
-			o.moments[i][j] = 1;
-			for (long k = j ; k < j + i + 1 ; ++k) {
-				o.moments[i][j] *= xsPer[k];
-			}
-		}
-	}
-}
-
-bool SimulPipe::isOrdered() {
-	long c = 0;
-	for (long i = 0 ; i < p.nbParticles-1 ; ++i) {
-		if (positions[i][0] > positions[i+1][0]) {
-			++c;
-		}
-	}
-	if (positions[p.nbParticles-1][0] > positions[0][0]) {
-		++c;
-	}
-	return (c < 2);
 }
 
 // A ray going from (xIn, yIn) to (xOut, yOut) is reflected inside

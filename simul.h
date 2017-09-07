@@ -7,7 +7,8 @@
 #include "parameters.h"
 
 struct Observables {
-	std::vector< std::vector<double> > moments;  // All the moments
+	std::vector<double> pos;  // Positions of the tracers (along x)
+	std::vector<double> displ;  // Displacements of the tracers (along x)
 };
 
 class Simulation {
@@ -19,15 +20,21 @@ class Simulation {
 	protected:
 		const Parameters p;
 		const double noise;
+		// Positions of the tracers after thermalization
+		std::vector<double> initXTracers;
+		// Distributions of random numbers
 		std::uniform_real_distribution<double> distribUnif;
 		std::normal_distribution<double> distribNormal;
 
+
+		void setInitXTracers();
+		void computeObservables(Observables &o);
+		bool isOrdered();
+
 		virtual void init(std::mt19937 &rndGen) = 0;
-		virtual void setInitXTracers() = 0;
 		virtual void update(std::mt19937 &rndGen,
 				            const bool thermalization = false) = 0;
-		virtual void computeObservables(Observables &o) = 0;
-		virtual bool isOrdered() = 0;
+		virtual double getPosX(const long i) = 0;
 };
 
 int runSimulations(const Parameters &p);

@@ -41,13 +41,6 @@ void SimulCanal::init(std::mt19937 &rndGen) {
 	setInitXTracers();
 }
 
-// Set initial x-position of the tracers.
-void SimulCanal::setInitXTracers() {
-	for (long i = 0 ; i < p.nbTracers ; ++i) {
-		initXTracers[i] = positions[p.idTracers[i]][0];
-	}
-}
-
 // Implement one step of the time evolution of the system.
 void SimulCanal::update(std::mt19937 &rndGen, const bool thermalization) {
 	calcForcesBetweenParticles();
@@ -70,6 +63,11 @@ void SimulCanal::update(std::mt19937 &rndGen, const bool thermalization) {
 	}
 
 	keepInCanal();
+}
+
+// Get position in X of particle i
+double SimulCanal::getPosX(const long i) {
+	return positions[i][0];
 }
 
 // Compute the forces between the particles.
@@ -95,24 +93,6 @@ void SimulCanal::calcForcesBetweenParticles() {
 	}
 }
 
-// Compute the observables.
-void SimulCanal::computeObservables(Observables &o) {
-	std::vector<double> xsPer(p.nbTracers);
-	for (long i = 0 ; i < p.nbTracers ; ++i) {
-		xsPer[i] = periodicBC(positions[p.idTracers[i]][0], p.length);
-		// xsPer[i] = periodicBC(positions[p.idTracers[i]] - initXTracers[i],
-		//                       p.length);
-	}
-	for (long i = 0 ; i < p.nbTracers ; ++i) {
-		for (long j = 0 ; j < p.nbTracers - i ; ++j) {
-			o.moments[i][j] = 1;
-			for (long k = j ; k < j + i + 1 ; ++k) {
-				o.moments[i][j] *= xsPer[k];
-			}
-		}
-	}
-}
-
 void SimulCanal::keepInCanal() {
 	// PBC in x
 	for (long i=0 ; i<p.nbParticles ; ++i) {
@@ -126,17 +106,4 @@ void SimulCanal::keepInCanal() {
 		int k = ((int) std::floor(t)) % 2;
 		positions[i][1] = k * periodicBC(positions[i][1], 2.*p.radExtra);
 	}
-}
-
-bool SimulCanal::isOrdered() {
-	long c = 0;
-	for (long i = 0 ; i < p.nbParticles-1 ; ++i) {
-		if (positions[i][0] > positions[i+1][0]) {
-			++c;
-		}
-	}
-	if (positions[p.nbParticles-1][0] > positions[0][0]) {
-		++c;
-	}
-	return (c < 2);
 }

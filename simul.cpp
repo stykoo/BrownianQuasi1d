@@ -18,6 +18,7 @@
 Simulation::Simulation(const Parameters &params) : p(params),
 	noise(std::sqrt(2. * p.temperature * p.timestep)),
 	distribUnif(0., 1.), distribNormal(0., 1.) {
+		initXTracers.assign(p.nbTracers, 0.);
 }
 
 // Run the simulation. Return 1 if an incident happened.
@@ -47,6 +48,36 @@ int Simulation::run(std::vector<Observables> &obs, std::mt19937 &rndGen) {
 		}
 	}
 	return 0;
+}
+
+// Set the initial positions of the tracers
+void Simulation::setInitXTracers() {
+	for (long i = 0 ; i < p.nbTracers ; ++i) {
+		initXTracers[i] = getPosX(p.idTracers[i]);
+	}
+}
+
+// Compute the observables.
+void Simulation::computeObservables(Observables &o) {
+	for (long i = 0 ; i < p.nbTracers ; ++i) {
+		o.pos[i] = getPosX(p.idTracers[i]);
+		o.displ[i] = periodicBC(getPosX(p.idTracers[i]) - initXTracers[i],
+				                p.length);
+	}
+}
+
+// Check if the positions of the particles are ordered.
+bool Simulation::isOrdered() {
+	long c = 0;
+	for (long i = 0 ; i < p.nbParticles-1 ; ++i) {
+		if (getPosX(i) > getPosX(i+1)) {
+			++c;
+		}
+	}
+	if (getPosX(p.nbParticles-1) > getPosX(0)) {
+		++c;
+	}
+	return (c < 2);
 }
 
 
@@ -138,10 +169,8 @@ void runMultipleSimulations(const Parameters &p, const long nbSimuls,
 void initObservables(std::vector<Observables> &obs, const Parameters &p) {
 	obs.resize(p.nbIters);
 	for (long t = 0 ; t < p.nbIters ; ++t) {
-		obs[t].moments.resize(p.nbTracers);
-		for (long i = 0 ; i < p.nbTracers ; ++i) {
-			obs[t].moments[i].assign(p.nbTracers - i, 0);
-		}
+		obs[t].pos.assign(p.nbTracers, 0.);
+		obs[t].displ.assign(p.nbTracers, 0.);
 	}
 }
 
@@ -151,9 +180,8 @@ void addObservables(std::vector<Observables> &obs1,
 {
 	for (long t = 0 ; t < p.nbIters ; ++t) {
 		for (long i = 0 ; i < p.nbTracers ; ++i) {
-			for (long j = 0 ; j < p.nbTracers - i ; ++j) {
-				obs1[t].moments[i][j] += obs2[t].moments[i][j];
-			}
+			obs1[t].pos[i] += obs2[t].pos[i];
+			obs1[t].displ[i] += obs2[t].displ[i];
 		}
 	}
 }
@@ -172,12 +200,12 @@ int exportObservables(const std::vector<Observables> &sumObs,
 	printParameters(p, file);
 	file << "\n# t";
 	for (long i = 0 ; i < p.nbTracers ; ++i) {
-		for (long j = 0 ; j < p.nbTracers - i ; ++j) {
-			file << " ";
-			for (long k = j ; k < j + i + 1 ; ++k) {
-				file << "x" << k+1;
-			}
-		}
+		file << " ";
+		file << "x" << i+1;
+	}
+	for (long i = 0 ; i < p.nbTracers ; ++i) {
+		file << " ";
+		file << "dx" << i+1;
 	}
 	file << "\n";
 
@@ -187,9 +215,10 @@ int exportObservables(const std::vector<Observables> &sumObs,
 	for (long k = 0 ; k < p.nbIters ; ++k) {
 		file << k * p.timestep;
 		for (long i = 0 ; i < p.nbTracers ; ++i) {
-			for (long j = 0 ; j < p.nbTracers - i ; ++j) {
-				file << " " << sumObs[k].moments[i][j] / p.nbSimuls;
-			}
+			file << " " << sumObs[k].pos[i] / p.nbSimuls;
+		}
+		for (long i = 0 ; i < p.nbTracers ; ++i) {
+			file << " " << sumObs[k].displ[i] / p.nbSimuls;
 		}
 		file << "\n";
 	}

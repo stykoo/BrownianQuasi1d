@@ -16,15 +16,11 @@ class SimulCanal : public Simulation {
 		std::vector< std::array<double, DIM_CANAL> > positions;
 		// Forces between the particles
 		std::vector< std::array<double, DIM_CANAL> > forces;
-		// Positions of the tracers after thermalization
-		std::vector<double> initXTracers;
 
 		// Methods to implement from Simulation
 		void init(std::mt19937 &rndGen) override;
-		void setInitXTracers() override;
 		void update(std::mt19937 &rndGen, const bool thermalization) override;
-		void computeObservables(Observables &o) override;
-		bool isOrdered() override;
+		double getPosX(const long i) override;
 
 		// New methods
 		void calcForcesBetweenParticles();
