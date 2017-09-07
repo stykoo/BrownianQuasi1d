@@ -1,15 +1,9 @@
 #include <algorithm>
 #include "simul.h"
-#include "SimulCoulomb.h"
-
-SimulCoulomb::SimulCoulomb(const Parameters &p) : Simulation(p) {
-}
-
-SimulCoulomb::~SimulCoulomb() {
-}
+#include "Simuls1d.h"
 
 // Generate an initial state.
-void SimulCoulomb::init(std::mt19937 &rndGen) {
+void Simul1d::init(std::mt19937 &rndGen) {
 	positions.resize(p.nbParticles);
 	forces.resize(p.nbParticles);
 	initXTracers.resize(p.nbTracers);
@@ -29,12 +23,10 @@ void SimulCoulomb::init(std::mt19937 &rndGen) {
 		std::sort(positions.begin(), positions.end());
 		update(rndGen, true);
 	}
-
-	setInitXTracers();
 }
 
 // Implement one step of the time evolution of the system.
-void SimulCoulomb::update(std::mt19937 &rndGen, const bool thermalization) {
+void Simul1d::update(std::mt19937 &rndGen, const bool thermalization) {
 	calcForcesBetweenParticles();
 	
 	for (long i=0 ; i<p.nbParticles ; ++i) {
@@ -57,8 +49,27 @@ void SimulCoulomb::update(std::mt19937 &rndGen, const bool thermalization) {
 }
 
 // Get position in X of particle i
-double SimulCoulomb::getPosX(const long i) {
+double Simul1d::getPosX(const long i) {
 	return positions[i];
+}
+
+// Compute the forces between the particles.
+// WE ASSUME THAT THE PARTICLES ARE ORDERED AND NEVER CROSS.
+void SimulTonks::calcForcesBetweenParticles() {
+	for (long i=0 ; i<p.nbParticles ; ++i) {
+		forces[i] = 0;
+	}
+
+	for (long i=0 ; i<p.nbParticles ; ++i) {
+		long iPrev = (i + p.nbParticles - 1) % p.nbParticles;
+
+		double dx = periodicBC(positions[i] - positions[iPrev], p.length);
+		if (dx < 1. && dx > 0.) {
+			double f = p.eps * (1. - dx);
+			forces[i] += f;
+			forces[iPrev] -= f;
+		}
+	}
 }
 
 // Compute the forces between the particles.
@@ -72,6 +83,24 @@ void SimulCoulomb::calcForcesBetweenParticles() {
 			double dx = periodicBC(positions[i] - positions[j], p.length);
 			if (dx != 0.) {
 				double f = sign(dx) * p.eps / (dx * dx);
+				forces[i] += f;
+				forces[j] -= f;
+			}
+		}
+	}
+}
+
+// Compute the forces between the particles.
+void SimulDipole::calcForcesBetweenParticles() {
+	for (long i=0 ; i<p.nbParticles ; ++i) {
+		forces[i] = 0;
+	}
+
+	for (long i=0 ; i<p.nbParticles ; ++i) {
+		for (long j=i+1 ; j<p.nbParticles ; ++j) {
+			double dx = periodicBC(positions[i] - positions[j], p.length);
+			if (dx != 0.) {
+				double f = sign(dx) * 3. * p.eps / mypow(dx, 4);
 				forces[i] += f;
 				forces[j] -= f;
 			}

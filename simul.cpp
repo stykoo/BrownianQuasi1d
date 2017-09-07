@@ -8,11 +8,9 @@
 #include <thread>
 #include <iomanip>
 #include "simul.h"
-#include "SimulPipe.h"
-#include "SimulTonks.h"
+#include "Simuls1d.h"
 #include "SimulCanal.h"
-#include "SimulCoulomb.h"
-#include "SimulDipole.h"
+#include "SimulPipe.h"
 
 // Load the parameters and initialize the distributions
 Simulation::Simulation(const Parameters &params) : p(params),
