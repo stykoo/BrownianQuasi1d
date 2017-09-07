@@ -57,7 +57,7 @@ int parseArguments(int argc, char **argv, Parameters &p) {
 	po::options_description opts("Options");
 	opts.add_options()
 		("name", po::value<std::string>(&p.simulName)->required(),
-		 "Should be 'pipe', 'tonks' or 'canal'")
+		 "Should be 'tonks', 'coulomb', 'dipole', 'canal' or 'pipe'")
 		("particles", po::value<long>(&p.nbParticles)->required(),
 		 "Number of particles")
 		("density", po::value<double>(&p.density)->required(),
@@ -85,8 +85,6 @@ int parseArguments(int argc, char **argv, Parameters &p) {
 
 		("simuls", po::value<long>(&p.nbSimuls)->default_value(1),
 		 "Number of repetitions of the simulation")
-		("moments", po::value<int>(&p.nbMoments)->default_value(
-			DEFAULT_NB_MOMENTS), "Number of moments to compute")
 		("threads", po::value<int>(&p.nbThreads)->default_value(
 			DEFAULT_THREADS), "Number of threads")
 		("output", po::value<std::string>(&p.output)->default_value(

@@ -76,7 +76,6 @@ struct Parameters {
 	std::vector<double> forces;  // Forces on the tracers
 	
 	long nbSimuls;  // Number of simulations
-	int nbMoments;  // Number of moments to compute
 	int nbThreads;  // Number of threads
 	std::string output;  // Name of the output file
 

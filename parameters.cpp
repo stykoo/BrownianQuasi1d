@@ -66,9 +66,8 @@ int checkParameters(const Parameters &p) {
         checkPositive(p.timestep, "timestep") ||
         checkPositive(p.nbIters, "nbIters") ||
         checkPositive(p.nbTracers, "nbTracers") ||
-        checkPositive(p.nbTracers, "nbSimuls") ||
-        checkPositive(p.nbTracers, "nbMoments") ||
-        checkPositive(p.nbMoments, "nbThreads")) {
+        checkPositive(p.nbSimuls, "nbSimuls") ||
+        checkPositive(p.nbThreads, "nbThreads")) {
         return 1;
     }
 
@@ -117,7 +116,7 @@ void printParameters(const Parameters &p, std::ostream &stream) {
 		<< ", temperature=" << p.temperature << ", eps=" << p.eps
 	   	<< ", timestep=" << p.timestep
 		<< ", nbIters=" << p.nbIters << ", nbItersTh=" << p.nbItersTh
-		<< ", nbSimuls=" << p.nbSimuls << ", nbMoments=" << p.nbMoments;
+		<< ", nbSimuls=" << p.nbSimuls;
 	stream << ", idTracers=";
 	for (auto po : p.idTracers) {
 		stream << po << ":";
