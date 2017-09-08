@@ -88,12 +88,32 @@ class SimulCoulomb : public Simul1d {
 		void calcForcesBetweenParticles() override;
 };
 
+class SimulCoulombCircle : public Simul1d {
+	public:
+		SimulCoulombCircle(const Parameters &p);
+		~SimulCoulombCircle() {}
+
+	protected:
+		double pref;
+		void calcForcesBetweenParticles() override;
+};
+
 class SimulDipole : public Simul1d {
 	public:
 		SimulDipole(const Parameters &p) : Simul1d(p) {}
 		~SimulDipole() {}
 
 	protected:
+		void calcForcesBetweenParticles() override;
+};
+
+class SimulDipoleCircle : public Simul1d {
+	public:
+		SimulDipoleCircle(const Parameters &p);
+		~SimulDipoleCircle() {}
+
+	protected:
+		double pref;
 		void calcForcesBetweenParticles() override;
 };
 

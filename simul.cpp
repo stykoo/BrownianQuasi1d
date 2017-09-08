@@ -196,11 +196,16 @@ void runMultipleSimulations(const Parameters &p, const long nbSimuls,
 		}
 		std::vector<Observables> obs;
 		int status = simul->run(obs, rndGen);
-		delete simul;
 
-		if (status != 0) {
-			std::cerr << "Warning: Wrong order of the particles" << std::endl;
+		while (status != 0) {
+			std::cerr << "Warning: Wrong order of the particles "
+				<< "(thread: " << std::this_thread::get_id()
+				<< ", simulation: " << s+1 << "). "
+			    << "Running simulation again." << std::endl;
+			status = simul->run(obs, rndGen);
 		}
+
+		delete simul;
 
 		// Add the observables to the sum
 		addObservables(sumObs, obs, p);

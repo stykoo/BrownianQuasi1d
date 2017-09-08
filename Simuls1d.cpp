@@ -137,6 +137,30 @@ void SimulCoulomb::calcForcesBetweenParticles() {
 	}
 }
 
+SimulCoulombCircle::SimulCoulombCircle(const Parameters &p) : Simul1d(p) {
+	pref = std::sqrt(2) * M_PI * M_PI * p.eps / (p.length * p.length);
+}
+
+// Compute the forces between the particles.
+void SimulCoulombCircle::calcForcesBetweenParticles() {
+	for (long i=0 ; i<p.nbParticles ; ++i) {
+		forces[i] = 0;
+	}
+
+	for (long i=0 ; i<p.nbParticles ; ++i) {
+		for (long j=i+1 ; j<p.nbParticles ; ++j) {
+			double t = periodicBC(positions[i] - positions[j], p.length)
+				       / p.length;
+			if (t != 0.) {
+				double den = std::sqrt(1. - std::cos(t));
+				double f = pref * std::sin(t) / (den * den);
+				forces[i] += f;
+				forces[j] -= f;
+			}
+		}
+	}
+}
+
 // Compute the forces between the particles.
 void SimulDipole::calcForcesBetweenParticles() {
 	for (long i=0 ; i<p.nbParticles ; ++i) {
@@ -148,6 +172,30 @@ void SimulDipole::calcForcesBetweenParticles() {
 			double dx = periodicBC(positions[i] - positions[j], p.length);
 			if (dx != 0.) {
 				double f = sign(dx) * 3. * p.eps / mypow(dx, 4);
+				forces[i] += f;
+				forces[j] -= f;
+			}
+		}
+	}
+}
+
+SimulDipoleCircle::SimulDipoleCircle(const Parameters &p) : Simul1d(p) {
+	pref = 24 * p.eps * mypow(M_PI, 4) / mypow(p.length, 4);
+}
+
+// Compute the forces between the particles.
+void SimulDipoleCircle::calcForcesBetweenParticles() {
+	for (long i=0 ; i<p.nbParticles ; ++i) {
+		forces[i] = 0;
+	}
+
+	for (long i=0 ; i<p.nbParticles ; ++i) {
+		for (long j=i+1 ; j<p.nbParticles ; ++j) {
+			double t = periodicBC(positions[i] - positions[j], p.length)
+				       / p.length;
+			if (t != 0.) {
+				double den = std::sqrt(1. - std::cos(t));
+				double f = pref * std::sin(t) / (den * den);
 				forces[i] += f;
 				forces[j] -= f;
 			}

@@ -56,7 +56,6 @@ SimulPipe::SimulPipe(const Parameters &p) : Simulation(p) {
 void SimulPipe::init(std::mt19937 &rndGen) {
 	positions.resize(p.nbParticles);
 	forces.resize(p.nbParticles);
-	initXTracers.resize(p.nbTracers);
 
 	std::uniform_real_distribution<double> distrib(0., 1.);
 
@@ -90,8 +89,6 @@ void SimulPipe::init(std::mt19937 &rndGen) {
 			forces[i][a] = 0;
 		}
 	}
-
-	setInitXTracers();
 }
 
 // Implement one step of the time evolution of the system.

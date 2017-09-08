@@ -58,7 +58,6 @@ SimulCanal::~SimulCanal() {
 void SimulCanal::init(std::mt19937 &rndGen) {
 	positions.resize(p.nbParticles);
 	forces.resize(p.nbParticles);
-	initXTracers.resize(p.nbTracers);
 
 	for (long i=0 ; i<p.nbParticles ; ++i) {
 		positions[i][0] = p.length * (distribUnif(rndGen) - 0.5);
@@ -83,8 +82,6 @@ void SimulCanal::init(std::mt19937 &rndGen) {
 				  });
 		update(rndGen, true);
 	}
-
-	setInitXTracers();
 }
 
 // Implement one step of the time evolution of the system.
@@ -139,6 +136,7 @@ void SimulCanal::calcForcesBetweenParticles() {
 	}
 }
 
+// Keep all the particles in the canal.
 void SimulCanal::keepInCanal() {
 	// PBC in x
 	for (long i=0 ; i<p.nbParticles ; ++i) {
