@@ -48,12 +48,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 // Check if the parameters are valid. Return 0 if they are, 1 otherwise.
 int checkParameters(const Parameters &p) {
-	if (p.simulName != "pipe" && p.simulName != "tonks"
-			&& p.simulName != "canal" && p.simulName != "coulomb"
-			&& p.simulName != "dipole") {
-		std::cerr << "Wrong simulation name (" << p.simulName << "). "
-			<< "Only 'tonks', 'canal', 'pipe', 'coulomb' and 'dipole' "
-			<< "are allowed." << std::endl;
+	if (checkSimulName(p.simulName)) {
 		return 1;
 	}
 
@@ -106,6 +101,21 @@ int checkParameters(const Parameters &p) {
 		return 1;
 	}
 	return 0;
+}
+
+// Check if the simulation name is valid. Return 0 if it is, 1 otherwise.
+int checkSimulName(const std::string name) {
+	for (auto n : NAMES) {
+		if (name == n) {
+			return 0;
+		}
+	}
+	std::cerr << "Wrong simulation name (" << name << "). Allowed names:";
+	for (auto n : NAMES) {
+		std::cerr << " '" << n << "'";
+	}
+	std::cerr << std::endl;
+	return 1;
 }
 
 // Print the parameters to stream.

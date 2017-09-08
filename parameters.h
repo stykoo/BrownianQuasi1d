@@ -56,6 +56,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <string>
 #include <vector>
 
+const std::vector<std::string> NAMES = {"tonks", "canal", "pipe", "coulomb",
+	                                    "dipole", "coulCircle", "dipCircle" };
+
 struct Parameters {
 	// Type of simulation ('pipe', 'tonks', 'canal', 'coulomb', 'dipole')
 	std::string simulName;
@@ -84,6 +87,7 @@ struct Parameters {
 };
 
 int checkParameters(const Parameters &p);
+int checkSimulName(const std::string name);
 void printParameters(const Parameters &p, std::ostream &stream = std::cout);
 
 // Return 1 and print error if a is negative. Return 0 otherwise.

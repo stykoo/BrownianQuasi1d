@@ -191,6 +191,10 @@ void runMultipleSimulations(const Parameters &p, const long nbSimuls,
 			simul = new SimulCoulomb(p);
 		} else if (p.simulName == "dipole") {
 			simul = new SimulDipole(p);
+		} else if (p.simulName == "coulCircle") {
+			simul = new SimulCoulombCircle(p);
+		} else if (p.simulName == "dipCircle") {
+			simul = new SimulDipoleCircle(p);
 		} else {
 			return;
 		}
