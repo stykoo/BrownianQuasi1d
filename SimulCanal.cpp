@@ -61,7 +61,7 @@ int SimulCanal::init(std::mt19937 &rndGen) {
 
 	for (long i=0 ; i<p.nbParticles ; ++i) {
 		positions[i][0] = p.length * (distribUnif(rndGen) - 0.5);
-		positions[i][1] = p.radExtra * (distribUnif(rndGen) - 0.5);
+		positions[i][1] = 2. * p.radExtra * (distribUnif(rndGen) - 0.5);
 		forces[i][0] = 0;  // Arbitrary
 		forces[i][1] = 0;  // Arbitrary
 	}
@@ -108,9 +108,8 @@ void SimulCanal::update(std::mt19937 &rndGen, const bool thermalization) {
 		for (long i=0 ; i<p.nbTracers ; ++i) {
 			positions[p.idTracers[i]][0] += p.timestep * p.forces[i];
 		}
+		keepInCanal();
 	}
-
-	keepInCanal();
 }
 
 // Get position in X of particle i
@@ -143,16 +142,19 @@ void SimulCanal::calcForcesBetweenParticles() {
 
 // Keep all the particles in the canal.
 void SimulCanal::keepInCanal() {
-	// PBC in x
+	// PBC in x and y
 	for (long i=0 ; i<p.nbParticles ; ++i) {
 		positions[i][0] = periodicBC(positions[i][0], p.length);
+		positions[i][1] = periodicBC(positions[i][1], 2.*p.radExtra);
 	}
 
+	/*	
 	// Reflexion in y
 	for (long i=0 ; i<p.nbParticles ; ++i) {
 		// This should do an arbitrary number of reflexions (to be checked!)
 		double t = (positions[i][1] + p.radExtra) / (2.*p.radExtra);
-		int k = ((int) std::floor(t)) % 2;
+		int k = -2 * (((int) std::floor(t)) % 2) + 1;
 		positions[i][1] = k * periodicBC(positions[i][1], 2.*p.radExtra);
 	}
+	*/
 }
