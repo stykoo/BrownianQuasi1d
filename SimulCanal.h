@@ -64,7 +64,7 @@ class SimulCanal : public Simulation {
 		std::vector< std::array<double, DIM_CANAL> > forces;
 
 		// Methods to implement from Simulation
-		void init(std::mt19937 &rndGen) override;
+		int init(std::mt19937 &rndGen) override;
 		void update(std::mt19937 &rndGen, const bool thermalization) override;
 		double getPosX(const long i) override;
 

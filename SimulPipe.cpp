@@ -53,9 +53,15 @@ SimulPipe::SimulPipe(const Parameters &p) : Simulation(p) {
 }
 
 // Generate an initial state.
-void SimulPipe::init(std::mt19937 &rndGen) {
+int SimulPipe::init(std::mt19937 &rndGen) {
 	positions.resize(p.nbParticles);
 	forces.resize(p.nbParticles);
+
+	for (long i=0 ; i<p.nbParticles ; ++i) {
+		for (int a=0 ; a<DIM_PIPE ; ++a) {
+			forces[i][a] = 0;
+		}
+	}
 
 	std::uniform_real_distribution<double> distrib(0., 1.);
 
@@ -76,19 +82,17 @@ void SimulPipe::init(std::mt19937 &rndGen) {
 	// If the potential is strong, the order of the particles may not be
 	// conserved in the first iterations: we do some thermalization.
 	update(rndGen, true);
-	while (!isOrdered()) {
+	for (int i = 0 ; i < MAX_ITERS_INIT ; ++i) {
+		if (isOrdered()) {
+			return 0;
+		}
 		std::sort(positions.begin(), positions.end(),
 				  [](auto const &a, auto const &b) {
 					 return a.front() < b.front();
 				  });
 		update(rndGen, true);
 	}
-
-	for (long i=0 ; i<p.nbParticles ; ++i) {
-		for (int a=0 ; a<DIM_PIPE ; ++a) {
-			forces[i][a] = 0;
-		}
-	}
+	return 1;
 }
 
 // Implement one step of the time evolution of the system.

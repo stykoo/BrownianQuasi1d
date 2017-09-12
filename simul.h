@@ -53,6 +53,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <random>
 #include "parameters.h"
 
+#define MAX_ITERS_INIT 100
+
 struct Observables {
 	std::vector<double> pos;  // Positions of the tracers (along x)
 	std::vector<double> displ;  // Displacements of the tracers (along x)
@@ -78,7 +80,7 @@ class Simulation {
 		void computeObservables(Observables &o);
 		bool isOrdered();
 
-		virtual void init(std::mt19937 &rndGen) = 0;
+		virtual int init(std::mt19937 &rndGen) = 0;
 		virtual void update(std::mt19937 &rndGen,
 				            const bool thermalization = false) = 0;
 		virtual double getPosX(const long i) = 0;
@@ -87,7 +89,7 @@ class Simulation {
 int runSimulations(const Parameters &p);
 void runMultipleSimulations(const Parameters &p, const long nbSimuls,
 		                   std::vector<Observables> &sumObs,
-						   const unsigned int seed);
+						   const unsigned int seed, bool *failed);
 void runOneSimulation(const Parameters &p, std::vector<Observables> &obs,
    					  std::mt19937 &rndGen);
 void initObservables(std::vector<Observables> &obs, const Parameters &p);

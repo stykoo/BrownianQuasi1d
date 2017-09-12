@@ -50,7 +50,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "Simuls1d.h"
 
 // Generate an initial state.
-void Simul1d::init(std::mt19937 &rndGen) {
+int Simul1d::init(std::mt19937 &rndGen) {
 	positions.resize(p.nbParticles);
 	forces.resize(p.nbParticles);
 	initXTracers.resize(p.nbTracers);
@@ -66,10 +66,15 @@ void Simul1d::init(std::mt19937 &rndGen) {
 	// If the potential is strong, the order of the particles may not be
 	// conserved in the first iterations: we do some thermalization.
 	update(rndGen, true);
-	while (!isOrdered()) {
+	for (int i = 0 ; i < MAX_ITERS_INIT ; ++i) {
+		if (isOrdered()) {
+			return 0;
+		}
 		std::sort(positions.begin(), positions.end());
 		update(rndGen, true);
 	}
+
+	return 1;
 }
 
 // Implement one step of the time evolution of the system.

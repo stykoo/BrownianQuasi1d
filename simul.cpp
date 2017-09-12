@@ -63,10 +63,15 @@ Simulation::Simulation(const Parameters &params) : p(params),
 		initXTracers.assign(p.nbTracers, 0.);
 }
 
-// Run the simulation. Return 1 if an incident happened.
+// Run the simulation.
+// Return 1 if particles cross.
+// Return 2 if initialization failed.
 int Simulation::run(std::vector<Observables> &obs, std::mt19937 &rndGen) {
 	// Initialization of the positions
-	init(rndGen);
+	int status = init(rndGen);
+	if (status) {
+		return 2;
+	}
 
 	// Thermalization
 	for (long j=0 ; j<p.nbItersTh ; ++j) {
@@ -138,14 +143,19 @@ int runSimulations(const Parameters &p) {
 	}
 
 	// Threads
+	bool failed = false;
 	for (int i = 0 ; i < p.nbThreads ; ++i) {
 		threads.push_back(std::thread(runMultipleSimulations, p,
-			nbSimulsPerThread, std::ref(allSumsObs[i]), rd())); 
+			nbSimulsPerThread, std::ref(allSumsObs[i]), rd(), &failed)); 
 	}
 	
 	// Wait for everyone
 	for (auto &th : threads) {
 		th.join();
+	}
+
+	if (failed) {
+		return 2;
 	}
 
 	// Initialize the total sum
@@ -166,7 +176,7 @@ int runSimulations(const Parameters &p) {
 // This function is usually called as a thread.
 void runMultipleSimulations(const Parameters &p, const long nbSimuls,
 						   std::vector<Observables> &sumObs,
-						   const unsigned int seed) {
+						   const unsigned int seed, bool *failed) {
     // Random generator
 	std::mt19937 rndGen(seed);
 
@@ -201,15 +211,23 @@ void runMultipleSimulations(const Parameters &p, const long nbSimuls,
 		std::vector<Observables> obs;
 		int status = simul->run(obs, rndGen);
 
-		while (status != 0) {
+		while (status == 1) {
 			std::cerr << "Warning: Wrong order of the particles "
 				<< "(thread: " << std::this_thread::get_id()
 				<< ", simulation: " << s+1 << "). "
 			    << "Running simulation again." << std::endl;
 			status = simul->run(obs, rndGen);
 		}
-
 		delete simul;
+
+		if (status == 2) {
+			std::cerr << "Could not initialize the system properly "
+				<< "(thread: " << std::this_thread::get_id()
+				<< ", simulation: " << s+1 << "). "
+				<< "You should reduce the timestep." << std::endl;
+			*failed = true;
+			return;
+		}
 
 		// Add the observables to the sum
 		addObservables(sumObs, obs, p);
