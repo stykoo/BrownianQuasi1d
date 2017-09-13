@@ -185,7 +185,7 @@ void SimulDipole::calcForcesBetweenParticles() {
 }
 
 SimulDipoleCircle::SimulDipoleCircle(const Parameters &p) : Simul1d(p) {
-	pref = 24 * p.eps * mypow(M_PI, 4) / mypow(p.length, 4);
+	pref = 6. * M_SQRT2 * p.eps * mypow(M_PI, 4) / mypow(p.length, 4);
 }
 
 // Compute the forces between the particles.
@@ -200,7 +200,7 @@ void SimulDipoleCircle::calcForcesBetweenParticles() {
 				       / p.length;
 			if (t != 0.) {
 				double den = std::sqrt(1. - std::cos(t));
-				double f = pref * std::sin(t) / (den * den);
+				double f = pref * std::sin(t) / mypow(den, 5);
 				forces[i] += f;
 				forces[j] -= f;
 			}
