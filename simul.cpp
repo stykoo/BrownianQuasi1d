@@ -87,9 +87,15 @@ int Simulation::run(std::vector<Observables> &obs, std::mt19937 &rndGen) {
 	computeObservables(obs[0]);
 
 	// Main loop
+	const long n = p.nbIters / p.skip;
 	for (long j=0 ; j<p.nbIters-1 ; ++j) {
 		update(rndGen, false);
-		computeObservables(obs[j+1]);
+		if ((j + 1) % p.skip == 0) {
+			if ((j+1) / p.skip >= n) {
+				std::cerr << "BAAHHHHH" << std::endl;
+			}
+			computeObservables(obs[(j+1)/p.skip]);
+		}
 		if (p.checkOrder && !isOrdered()) {
 			return 1;
 		}
@@ -236,8 +242,9 @@ void runMultipleSimulations(const Parameters &p, const long nbSimuls,
 
 // Initialize a vector of observables
 void initObservables(std::vector<Observables> &obs, const Parameters &p) {
-	obs.resize(p.nbIters);
-	for (long t = 0 ; t < p.nbIters ; ++t) {
+	const long n = p.nbIters / p.skip;
+	obs.resize(n);
+	for (long t = 0 ; t < n ; ++t) {
 		obs[t].pos.assign(p.nbTracers, 0.);
 		obs[t].displ.assign(p.nbTracers, 0.);
 	}
@@ -247,7 +254,8 @@ void initObservables(std::vector<Observables> &obs, const Parameters &p) {
 void addObservables(std::vector<Observables> &obs1,
 					const std::vector<Observables> &obs2, const Parameters &p)
 {
-	for (long t = 0 ; t < p.nbIters ; ++t) {
+	const long n = p.nbIters / p.skip;
+	for (long t = 0 ; t < n ; ++t) {
 		for (long i = 0 ; i < p.nbTracers ; ++i) {
 			obs1[t].pos[i] += obs2[t].pos[i];
 			obs1[t].displ[i] += obs2[t].displ[i];
@@ -280,9 +288,10 @@ int exportObservables(const std::vector<Observables> &sumObs,
 
 	file << std::scientific << std::setprecision(DEFAULT_OUTPUT_PRECISION);
 
+	const long n = p.nbIters / p.skip;
 	// Data (we write the average and not the sum)
-	for (long k = 0 ; k < p.nbIters ; ++k) {
-		file << k * p.timestep;
+	for (long k = 0 ; k < n ; ++k) {
+		file << k * p.skip * p.timestep;
 		for (long i = 0 ; i < p.nbTracers ; ++i) {
 			file << " " << sumObs[k].pos[i] / p.nbSimuls;
 		}

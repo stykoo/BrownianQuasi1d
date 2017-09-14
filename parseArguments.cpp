@@ -89,6 +89,8 @@ int parseArguments(int argc, char **argv, Parameters &p) {
 			DEFAULT_THREADS), "Number of threads")
 		("output", po::value<std::string>(&p.output)->default_value(
 			DEFAULT_OUTPUT_FILE), "Output file")
+		("skip", po::value<long>(&p.skip)->default_value(1),
+		 "Compute observables every given number of iterations")
 
         ("checkOrder", po::bool_switch(&p.checkOrder),
 		 "Check the order of the particles at each iteration")

@@ -62,7 +62,8 @@ int checkParameters(const Parameters &p) {
         checkPositive(p.nbIters, "nbIters") ||
         checkPositive(p.nbTracers, "nbTracers") ||
         checkPositive(p.nbSimuls, "nbSimuls") ||
-        checkPositive(p.nbThreads, "nbThreads")) {
+        checkPositive(p.nbSimuls, "nbThreads") ||
+        checkPositive(p.nbThreads, "skip")) {
         return 1;
     }
 

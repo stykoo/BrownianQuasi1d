@@ -81,6 +81,7 @@ struct Parameters {
 	long nbSimuls;  // Number of simulations
 	int nbThreads;  // Number of threads
 	std::string output;  // Name of the output file
+	long skip;  // Compute observables every given number of iterations
 
 	bool checkOrder;  // Check the order of the particles at each iteration
 	bool verbose;  // Verbose mode
