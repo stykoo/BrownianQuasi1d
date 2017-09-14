@@ -87,17 +87,14 @@ int Simulation::run(std::vector<Observables> &obs, std::mt19937 &rndGen) {
 	computeObservables(obs[0]);
 
 	// Main loop
-	const long n = p.nbIters / p.skip;
 	for (long j=0 ; j<p.nbIters-1 ; ++j) {
 		update(rndGen, false);
 		if ((j + 1) % p.skip == 0) {
-			if ((j+1) / p.skip >= n) {
-				std::cerr << "BAAHHHHH" << std::endl;
-			}
 			computeObservables(obs[(j+1)/p.skip]);
-		}
-		if (p.checkOrder && !isOrdered()) {
-			return 1;
+
+			if (p.checkOrder && !isOrdered()) {
+				return 1;
+			}
 		}
 	}
 	return 0;
