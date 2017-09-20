@@ -66,6 +66,7 @@ Simulation::Simulation(const Parameters &params) : p(params),
 // Run the simulation.
 // Return 1 if particles cross.
 // Return 2 if initialization failed.
+// Return 3 if a NaN appears in the observables
 int Simulation::run(std::vector<Observables> &obs, std::mt19937 &rndGen) {
 	// Initialization of the positions
 	int status = init(rndGen);
@@ -90,7 +91,10 @@ int Simulation::run(std::vector<Observables> &obs, std::mt19937 &rndGen) {
 	for (long j=0 ; j<p.nbIters-1 ; ++j) {
 		update(rndGen, false);
 		if ((j + 1) % p.skip == 0) {
-			computeObservables(obs[(j+1)/p.skip]);
+			int status = computeObservables(obs[(j+1)/p.skip]);
+			if (status != 0) {
+				return 3;
+			}
 
 			if (p.checkOrder && !isOrdered()) {
 				return 1;
@@ -108,12 +112,17 @@ void Simulation::setInitXTracers() {
 }
 
 // Compute the observables.
-void Simulation::computeObservables(Observables &o) {
+// Return 1 if a NaN appears, 0 otherwise.
+int Simulation::computeObservables(Observables &o) {
 	for (long i = 0 ; i < p.nbTracers ; ++i) {
 		o.pos[i] = getPosX(p.idTracers[i]);
 		o.displ[i] = periodicBC(getPosX(p.idTracers[i]) - initXTracers[i],
 				                p.length);
+		if (std::isnan(o.pos[i]) || std::isnan(o.displ[i])) {
+			return 1;
+		}
 	}
+	return 0;
 }
 
 // Check if the positions of the particles are ordered.
@@ -214,11 +223,15 @@ void runMultipleSimulations(const Parameters &p, const long nbSimuls,
 		std::vector<Observables> obs;
 		int status = simul->run(obs, rndGen);
 
-		while (status == 1) {
-			std::cerr << "Warning: Wrong order of the particles "
-				<< "(thread: " << std::this_thread::get_id()
+		while (status == 1 || status == 3) {
+			if (status == 1) {
+				std::cerr << "Warning: Wrong order of the particles ";
+			} else {
+				std::cerr << "Warning: A NaN appeared in the observables ";
+			}
+			std::cerr << "(thread: " << std::this_thread::get_id()
 				<< ", simulation: " << s+1 << "). "
-			    << "Running simulation again." << std::endl;
+				<< "Running simulation again." << std::endl;
 			status = simul->run(obs, rndGen);
 		}
 		delete simul;

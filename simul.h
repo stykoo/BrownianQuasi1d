@@ -77,7 +77,7 @@ class Simulation {
 
 
 		void setInitXTracers();
-		void computeObservables(Observables &o);
+		int computeObservables(Observables &o);
 		bool isOrdered();
 
 		virtual int init(std::mt19937 &rndGen) = 0;
