@@ -196,8 +196,8 @@ void SimulDipoleCircle::calcForcesBetweenParticles() {
 
 	for (long i=0 ; i<p.nbParticles ; ++i) {
 		for (long j=i+1 ; j<p.nbParticles ; ++j) {
-			double t = periodicBC(positions[i] - positions[j], p.length)
-				       / p.length;
+			double t = periodicBC(positions[i] - positions[j], p.length);
+			t *= 2. * M_PI / p.length;
 			if (t != 0.) {
 				double den = std::sqrt(1. - std::cos(t));
 				double f = pref * std::sin(t) / mypow(den, 5);
