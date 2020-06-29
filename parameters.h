@@ -47,9 +47,10 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef PARAMETERS_H
 #define PARAMETERS_H
 
-#define DEFAULT_NB_MOMENTS 2
+#define DEFAULT_NB_MOMENTS 4
 #define DEFAULT_OUTPUT_PRECISION 15
 #define DEFAULT_THREADS 1
+#define DEFAULT_PREC_PROF 0.1
 #define DEFAULT_OUTPUT_FILE "observables.dat"
 
 #include <iostream>
@@ -82,6 +83,10 @@ struct Parameters {
 	int nbThreads;  // Number of threads
 	std::string output;  // Name of the output file
 	long skip;  // Compute observables every given number of iterations
+
+	bool computeProfs; // Compute the profiles
+	double precProfs; // Spatial resolution for the profiles
+	long nbPtsProfs; // Number of points for the profiles
 
 	bool checkOrder;  // Check the order of the particles at each iteration
 	bool verbose;  // Verbose mode

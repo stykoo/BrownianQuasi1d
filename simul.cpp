@@ -114,12 +114,25 @@ void Simulation::setInitXTracers() {
 // Compute the observables.
 // Return 1 if a NaN appears, 0 otherwise.
 int Simulation::computeObservables(Observables &o) {
-	for (long i = 0 ; i < p.nbTracers ; ++i) {
-		o.pos[i] = getPosX(p.idTracers[i]);
-		o.displ[i] = periodicBC(getPosX(p.idTracers[i]) - initXTracers[i],
-				                p.length);
-		if (std::isnan(o.pos[i]) || std::isnan(o.displ[i])) {
-			return 1;
+	if (p.computeProfs) {
+		double dx = periodicBC(getPosX(p.idTracers[0]) - initXTracers[0],
+				               p.length);
+		o.moments1[0] = dx;
+		getPosRel(o.profiles[0], p.nbPtsProfs);
+		for (long i = 1 ; i < DEFAULT_NB_MOMENTS ; ++i) {
+			o.moments1[i] = dx * o.moments1[i-1];
+			for (long j = 0 ; j < p.nbPtsProfs ; ++j) {
+				o.profiles[i][j] = dx * o.profiles[i-1][j];
+			}
+		}
+	} else {
+		for (long i = 0 ; i < p.nbTracers ; ++i) {
+			o.pos[i] = getPosX(p.idTracers[i]);
+			o.displ[i] = periodicBC(getPosX(p.idTracers[i]) - initXTracers[i],
+									p.length);
+			if (std::isnan(o.pos[i]) || std::isnan(o.displ[i])) {
+				return 1;
+			}
 		}
 	}
 	return 0;
@@ -179,8 +192,15 @@ int runSimulations(const Parameters &p) {
 		addObservables(sumObs, allSumsObs[k], p);
 	}
 
-	int status = exportObservables(sumObs, p);
-
+	int status;
+	if (p.computeProfs) {
+		status = exportMoments1(sumObs, p);
+		if (status)
+			return status;
+		status = exportProfiles(sumObs, p);
+	} else {
+		status = exportObservables(sumObs, p);
+	}
 	return status;
 }
 
@@ -255,8 +275,14 @@ void initObservables(std::vector<Observables> &obs, const Parameters &p) {
 	const long n = p.nbIters / p.skip;
 	obs.resize(n);
 	for (long t = 0 ; t < n ; ++t) {
-		obs[t].pos.assign(p.nbTracers, 0.);
-		obs[t].displ.assign(p.nbTracers, 0.);
+		if (p.computeProfs) {
+			obs[t].moments1.assign(DEFAULT_NB_MOMENTS, 0.);
+			obs[t].profiles.assign(DEFAULT_NB_MOMENTS,
+					               std::vector<double>(p.nbPtsProfs, 0.));
+		} else {
+			obs[t].pos.assign(p.nbTracers, 0.);
+			obs[t].displ.assign(p.nbTracers, 0.);
+		}
 	}
 }
 
@@ -266,9 +292,18 @@ void addObservables(std::vector<Observables> &obs1,
 {
 	const long n = p.nbIters / p.skip;
 	for (long t = 0 ; t < n ; ++t) {
-		for (long i = 0 ; i < p.nbTracers ; ++i) {
-			obs1[t].pos[i] += obs2[t].pos[i];
-			obs1[t].displ[i] += obs2[t].displ[i];
+		if (p.computeProfs) {
+			for (long i = 0 ; i < DEFAULT_NB_MOMENTS ; ++i) {
+				obs1[t].moments1[i] += obs2[t].moments1[i];
+				for (long j = 0 ; j < p.nbPtsProfs ; ++j) {
+					obs1[t].profiles[i][j] += obs2[t].profiles[i][j];
+				}
+			}
+		} else {
+			for (long i = 0 ; i < p.nbTracers ; ++i) {
+				obs1[t].pos[i] += obs2[t].pos[i];
+				obs1[t].displ[i] += obs2[t].displ[i];
+			}
 		}
 	}
 }
@@ -313,5 +348,76 @@ int exportObservables(const std::vector<Observables> &sumObs,
 
 	file.close();
 
+	return 0;
+}
+
+// Export the moments of TP 1
+int exportMoments1(const std::vector<Observables> &sumObs,
+				   const Parameters &p) {
+	std::string fname = p.output + "_moments.dat";
+
+	std::ofstream file(fname);
+	if (!file.is_open()) {
+		return 1;
+	}
+
+	// Header
+	file << "# BrownianQuasi1d  (" << __DATE__ <<  ", " << __TIME__
+		<< "): ";
+	printParameters(p, file);
+	file << "\n# t";
+	for (size_t i = 0 ; i < DEFAULT_NB_MOMENTS ; ++i) {
+		file << " X^" << i+1;
+	}
+	file << "\n";
+
+	const long n = p.nbIters / p.skip;
+
+	for (long i = 0 ; i < n ; ++i) {
+		double t = i * p.skip * p.timestep;
+		file << t;
+		for (size_t k = 0 ; k < DEFAULT_NB_MOMENTS  ; ++k) {
+			file << " " << sumObs[i].moments1[k] / p.nbSimuls;
+		}
+		file << "\n";
+	}
+	file.close();
+	return 0;
+}
+
+// Export the profiles to files.
+int exportProfiles(const std::vector<Observables> &sumObs,
+				   const Parameters &p) {
+	const long n = p.nbIters / p.skip;
+
+	for (long i = 0 ; i < n ; ++i) {
+		double t = i * p.skip * p.timestep;
+		std::string fname = p.output + "_prof" + std::to_string(t) + ".dat";
+
+		std::ofstream file(fname);
+		if (!file.is_open()) {
+			return 1;
+		}
+
+		// Header
+		file << "# BrownianQuasi1d  (" << __DATE__ <<  ", " << __TIME__
+			<< "): ";
+		printParameters(p, file);
+		file << "\n# x";
+		for (size_t i = 0 ; i < DEFAULT_NB_MOMENTS ; ++i) {
+			file << " rho(x)*X^" << i;
+		}
+		file << "\n";
+		for (long j = 0 ; j < p.nbPtsProfs ; ++j) {
+			file << j * p.precProfs;
+			for (size_t k = 0 ; k < DEFAULT_NB_MOMENTS  ; ++k) {
+				file << " "
+					 << (sumObs[i].profiles[k][j] * p.nbPtsProfs
+						 / p.length / p.nbSimuls);
+			}
+		  	file << "\n";
+		}
+		file.close();
+	}
 	return 0;
 }

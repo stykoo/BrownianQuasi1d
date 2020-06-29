@@ -58,6 +58,8 @@ knowledge of the CeCILL license and that you accept its terms.
 struct Observables {
 	std::vector<double> pos;  // Positions of the tracers (along x)
 	std::vector<double> displ;  // Displacements of the tracers (along x)
+	std::vector<double> moments1;  // All the moments of TP 1
+	std::vector<std::vector<double> > profiles;  // Generalized profiles
 };
 
 class Simulation {
@@ -75,7 +77,6 @@ class Simulation {
 		std::uniform_real_distribution<double> distribUnif;
 		std::normal_distribution<double> distribNormal;
 
-
 		void setInitXTracers();
 		int computeObservables(Observables &o);
 		bool isOrdered();
@@ -84,6 +85,8 @@ class Simulation {
 		virtual void update(std::mt19937 &rndGen,
 				            const bool thermalization = false) = 0;
 		virtual double getPosX(const long i) = 0;
+		virtual void getPosRel(std::vector<double> &posr,
+				               const long nbPts) = 0;
 };
 
 int runSimulations(const Parameters &p);
@@ -97,11 +100,21 @@ void addObservables(std::vector<Observables> &obs1,
 		            const std::vector<Observables> &obs2, const Parameters &p);
 int exportObservables(const std::vector<Observables> &sumObs,
 		              const Parameters &p);
+int exportMoments1(const std::vector<Observables> &sumObs,
+				   const Parameters &p);
+int exportProfiles(const std::vector<Observables> &sumObs,
+				   const Parameters &p);
 
 // Translate x into interval [-L/2, L/2[
 inline double periodicBC(const double x, const double L) {
     return x - L * std::round(x / L);
 }
+
+// Translate x into interval [0, L[
+inline double periodicBCpos(const double x, const double L) {
+    return x - L * std::floor(x / L);
+}
+
 
 // Compute a^b with b a positive integer
 template<typename T, typename U>

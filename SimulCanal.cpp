@@ -117,6 +117,20 @@ double SimulCanal::getPosX(const long i) {
 	return positions[i][0];
 }
 
+// Get profile
+void SimulCanal::getPosRel(std::vector<double> &posr, const long nbPts) {
+	double x;
+	long k;
+	for (long j = 0 ; j < nbPts ; ++j) {
+		posr[j] = 0.0;
+	}
+	for (long i = 1 ; i < p.nbParticles ; ++i) {
+		x = periodicBCpos(positions[i][0] - positions[0][0], p.length);
+		k = (long) (x / p.length * nbPts);
+		posr[k] += 1.0;
+	}
+}
+
 // Compute the forces between the particles.
 // WE ASSUME THAT THE PARTICLES ARE ORDERED AND NEVER CROSS.
 void SimulCanal::calcForcesBetweenParticles() {

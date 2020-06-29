@@ -91,7 +91,11 @@ int parseArguments(int argc, char **argv, Parameters &p) {
 			DEFAULT_OUTPUT_FILE), "Output file")
 		("skip", po::value<long>(&p.skip)->default_value(1),
 		 "Compute observables every given number of iterations")
-
+        ("prof", po::bool_switch(&p.computeProfs),
+		 "Compute the profiles")
+		("prec", po::value<double>(&p.precProfs)->default_value(
+		  DEFAULT_PREC_PROF),
+		 "Precision for the profiles")
         ("checkOrder", po::bool_switch(&p.checkOrder),
 		 "Check the order of the particles at each iteration")
         ("verbose", po::bool_switch(&p.verbose), "Verbose mode")
@@ -117,6 +121,8 @@ int parseArguments(int argc, char **argv, Parameters &p) {
 		// Compute here the parameters that should be computed.
 		p.length = p.nbParticles / p.density;
 		p.nbTracers = (long) p.idTracers.size();
+		p.nbPtsProfs = (long) (p.length / p.precProfs);
+		p.precProfs = p.length / p.nbPtsProfs;
 	} catch (std::exception &e) {
 		std::cerr << "Error: " << e.what() << std::endl;
 		return 2;

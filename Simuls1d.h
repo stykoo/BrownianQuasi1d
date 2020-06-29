@@ -65,6 +65,7 @@ class Simul1d : public Simulation {
 		int init(std::mt19937 &rndGen) override;
 		void update(std::mt19937 &rndGen, const bool thermalization) override;
 		double getPosX(const long i) override;
+		void getPosRel(std::vector<double> &posr, const long nbPts) override;
 
 		// New methods
 		virtual void calcForcesBetweenParticles() = 0;
